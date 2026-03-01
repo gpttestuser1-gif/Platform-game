@@ -1,20 +1,70 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Tri World Odyssey: Platform Game
 
-# Run and deploy your AI Studio app
+Tri World Odyssey is a platform game built with React, TypeScript, and Vite. Explore unique levels, overcome obstacles, and enjoy smooth gameplay in a modern web environment.
 
-This contains everything you need to run your app locally.
+## Features
+- Multiple levels with increasing difficulty
+- Responsive controls and smooth animations
+- Modern UI with React and Tailwind CSS
+- Fun effects using Konva and canvas-confetti
+- Easy to extend and customize
 
-View your app in AI Studio: https://ai.studio/apps/2224c623-8f69-4b45-b1cf-8bf92fea845f
+## Getting Started
 
-## Run Locally
+Follow these steps to run the game locally:
 
-**Prerequisites:**  Node.js
+1. **Install Node.js**
+   - Download and install Node.js from [nodejs.org](https://nodejs.org/).
 
+2. **Install dependencies**
+   - Open a terminal in the project folder.
+   - Run:
+     ```sh
+     npm install
+     ```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+3. **Start the development server**
+   - Run:
+     ```sh
+     npm run dev
+     ```
+   - Open your browser and go to [http://localhost:3000](http://localhost:3000).
+
+## Building the Project
+
+To create a production build:
+
+```sh
+npm run build
+```
+
+The output will be in the `dist` folder.
+
+## Project Structure
+
+```
+Platform-game/
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+├── src/
+│   ├── App.tsx          # Main React component
+│   ├── index.css        # Global styles
+│   ├── main.tsx         # Entry point
+│   ├── types.ts         # Type definitions
+│   └── game/
+│       └── levels.ts    # Game level data
+```
+
+## Troubleshooting
+
+- **npm install errors**: Make sure you have a stable internet connection and the latest version of Node.js.
+- **npm run dev fails**: Check for error messages in the terminal. Try running `npm install` again.
+- **Port already in use**: If port 3000 is busy, stop other running apps or change the port in `package.json`.
+- **Build issues**: Delete the `dist` folder and run `npm run build` again.
+- **General tips**:
+  - Restart your terminal if you see strange errors.
+  - If you get stuck, search for the error message online or ask for help.
+
+Enjoy building and playing Tri World Odyssey!
