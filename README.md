@@ -68,3 +68,26 @@ Platform-game/
   - If you get stuck, search for the error message online or ask for help.
 
 Enjoy building and playing Tri World Odyssey!
+
+## Deploy to GitHub Pages
+
+This project can be hosted for free using GitHub Pages. The setup
+is already included via a GitHub Actions workflow that runs when you
+push to the **main** branch.
+
+### What happens automatically
+1. The action installs dependencies and runs `npm run build`.
+2. The built files in `dist/` are pushed to the `gh-pages` branch.
+3. GitHub Pages serves the site from that branch at:
+   `https://gpttestuser1-gif.github.io/Platform-game/`
+
+### What you need to do on GitHub
+1. Push your changes (the workflow file, config updates, etc.) to
+   `main`.
+2. In the repository on GitHub, go to **Settings → Pages**.
+3. Under **Source**, choose the `gh-pages` branch and `/ (root)` folder,
+   then click **Save**.
+4. After a minute, visit the URL above to see your game live.
+
+GitHub Pages will rebuild automatically on every subsequent push to
+`main`.
