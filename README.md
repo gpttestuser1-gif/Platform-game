@@ -71,23 +71,23 @@ Enjoy building and playing Tri World Odyssey!
 
 ## Deploy to GitHub Pages
 
-This project can be hosted for free using GitHub Pages. The setup
-is already included via a GitHub Actions workflow that runs when you
-push to the **main** branch.
+This project is set up to deploy automatically using the **official
+Vite + GitHub Pages** actions workflow. When you push to the **main**
+branch, GitHub Actions will build the site and publish it for you.
 
 ### What happens automatically
-1. The action installs dependencies and runs `npm run build`.
-2. The built files in `dist/` are pushed to the `gh-pages` branch.
-3. GitHub Pages serves the site from that branch at:
-   `https://gpttestuser1-gif.github.io/Platform-game/`
+1. GitHub runs `npm ci` and `npm run build`.
+2. The output from `./dist` is uploaded as a Pages artifact.
+3. GitHub's `deploy-pages` action publishes the artifact.
+4. Your game is served at
+   `https://gpttestuser1-gif.github.io/Platform-game/`.
 
-### What you need to do on GitHub
-1. Push your changes (the workflow file, config updates, etc.) to
-   `main`.
-2. In the repository on GitHub, go to **Settings → Pages**.
-3. Under **Source**, choose the `gh-pages` branch and `/ (root)` folder,
-   then click **Save**.
-4. After a minute, visit the URL above to see your game live.
+### How to activate Pages on GitHub
+1. Commit and push all changes to `main` (workflow, config, etc.).
+2. Open your repo on GitHub and go to **Settings → Pages**.
+3. Under **Build and deployment**, ensure **Source** is set to
+   **GitHub Actions** (this is already configured).
+4. Wait a minute, then visit the URL above to see the live game.
 
-GitHub Pages will rebuild automatically on every subsequent push to
-`main`.
+No manual branch or FTP pushing is required; every push to `main`
+triggers a rebuild and redeploy.
