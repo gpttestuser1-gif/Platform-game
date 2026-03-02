@@ -25,16 +25,30 @@ const SHOP_ITEMS = [
 
 export default function App() {
   const [gameState, setGameState] = useState<GameState>(GameState.ACCOUNT_SELECT);
+
+  // world information used in the selector
+  const WORLD_INFO: { [w: number]: { title: string; description: string; cost?: number } } = {
+    1: { title: 'WORLD 1', description: 'A gentle introduction with simple platforms.' },
+    2: { title: 'WORLD 2', description: 'A darker cave filled with surprises.' },
+    3: { title: 'WORLD 3', description: 'Volcanic challenges await with rising heat.' },
+    4: { title: 'CRYSTAL CAVERNS', description: 'Sparkling crystals and glowing scenery – medium challenge, more coins!', cost: 120 },
+    5: { title: 'SKY RUINS', description: 'Beautiful skies and floating ruins – harder with better rewards.', cost: 200 },
+    6: { title: 'LAVA FORTRESS', description: 'Striking fiery visuals and danger – hardest, highest coins.', cost: 300 },
+  };
+
   const [users, setUsers] = useState<User[]>(() => {
     const saved = localStorage.getItem('triworld_users');
     return saved ? JSON.parse(saved) : [
-      { id: '1', name: 'Player 1', unlockedLevels: [1], totalCoins: 0, ownedItems: [], maxLives: 6, tutorialEnabled: true, tutorialSeen: [] }
+      { id: '1', name: 'Player 1', unlockedLevels: [1], unlockedWorlds: [1,2,3], totalCoins: 0, ownedItems: [], maxLives: 6, tutorialEnabled: true, tutorialSeen: [] }
     ];
   });
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
   const [tutorialEnabled, setTutorialEnabled] = useState(true);
   const [tutorialSeen, setTutorialSeen] = useState<string[]>([]);
+  const [unlockedWorlds, setUnlockedWorlds] = useState<number[]>([]);
+  
+  // ... existing states continue ...
   const [tutorialMessage, setTutorialMessage] = useState<string | null>(null);
   const [tutorialInfo, setTutorialInfo] = useState<{ title: string, content: string, icon: React.ReactNode } | null>(null);
   const [tutorialQueue, setTutorialQueue] = useState<{ title: string, content: string, icon: React.ReactNode }[]>([]);
@@ -73,6 +87,7 @@ export default function App() {
   useEffect(() => {
     if (currentUser) {
       setUnlockedLevels(currentUser.unlockedLevels);
+      setUnlockedWorlds(currentUser.unlockedWorlds || [1,2,3]);
       setTotalCoins(currentUser.totalCoins);
       setMaxLives(currentUser.maxLives);
       setOwnedItems(currentUser.ownedItems);
@@ -89,6 +104,7 @@ export default function App() {
       const updatedUsers = users.map(u => u.id === currentUser.id ? {
         ...u,
         unlockedLevels,
+        unlockedWorlds,
         totalCoins,
         maxLives,
         ownedItems,
@@ -99,7 +115,7 @@ export default function App() {
       setUsers(updatedUsers);
       localStorage.setItem('triworld_users', JSON.stringify(updatedUsers));
     }
-  }, [unlockedLevels, totalCoins, maxLives, ownedItems, tutorialEnabled, tutorialSeen, customWorldName]);
+  }, [unlockedLevels, unlockedWorlds, totalCoins, maxLives, ownedItems, tutorialEnabled, tutorialSeen, customWorldName]);
 
   useEffect(() => {
     if (!currentUser) {
@@ -663,16 +679,23 @@ export default function App() {
       setTotalCoins(c => c + 5);
     }
 
-    const isCustom = level.world === 4;
+    // detect custom levels by seeing if the id falls outside the
+    // original LEVELS array (customs are appended after).
+    const isCustom = level.id > LEVELS.length;
 
     if (isCustom) {
       setGameState(GameState.WORLD_SELECT);
       return;
     }
 
-    const nextLevelId = level.id + 1;
-    if (!unlockedLevels.includes(nextLevelId) && nextLevelId <= allLevels.length) {
-      setUnlockedLevels(prev => [...prev, nextLevelId]);
+    // handle unlocking the next level, but only if its world is unlocked
+    const nextLevel = allLevels.find(l => l.id === level.id + 1);
+    if (nextLevel) {
+      const world = nextLevel.world;
+      const canUnlockWorld = world <= 3 || unlockedWorlds.includes(world);
+      if (canUnlockWorld && !unlockedLevels.includes(nextLevel.id)) {
+        setUnlockedLevels(prev => [...prev, nextLevel.id]);
+      }
     }
 
     if (currentLevelIndex === allLevels.length - 1 && !isCustom) {
@@ -811,6 +834,7 @@ export default function App() {
                     id: Date.now().toString(),
                     name: trimmedName,
                     unlockedLevels: [1],
+                    unlockedWorlds: [1,2,3],
                     totalCoins: 0,
                     ownedItems: [],
                     maxLives: 6,
@@ -844,6 +868,7 @@ export default function App() {
                     id: Date.now().toString(),
                     name: trimmedName,
                     unlockedLevels: [1],
+                    unlockedWorlds: [1,2,3],
                     totalCoins: 0,
                     ownedItems: [],
                     maxLives: 6,
@@ -1072,18 +1097,26 @@ export default function App() {
         <span>Back to Menu</span>
       </button>
       
-      <h2 className="text-4xl font-bold mb-12">Select Your Destination</h2>
-      
+      <h2 className="text-4xl font-bold mb-4">Select Your Destination</h2>
+      <div className="mb-8 text-xl">
+        Coins: <span className="text-amber-300 font-semibold">{totalCoins}</span>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-        {[1, 2, 3, 'my', 'shared', 'others'].map(w => {
+        {[1, 2, 3, 4, 5, 6, 'my', 'shared', 'others'].map(w => {
           let worldLevels: LevelData[] = [];
           let title = "";
           let color = "";
 
           if (typeof w === 'number') {
             worldLevels = LEVELS.filter(l => l.world === w);
-            title = `WORLD ${w}`;
-            color = w === 1 ? 'text-emerald-400' : w === 2 ? 'text-blue-400' : 'text-red-400';
+            const info = WORLD_INFO[w];
+            title = info?.title || `WORLD ${w}`;
+            color = w === 1 ? 'text-emerald-400'
+                  : w === 2 ? 'text-blue-400'
+                  : w === 3 ? 'text-red-400'
+                  : w === 4 ? 'text-cyan-400'
+                  : w === 5 ? 'text-blue-200'
+                  : 'text-red-600';
           } else if (w === 'my') {
             worldLevels = customLevels.filter(l => l.creatorId === currentUser?.id && !l.isShared);
             title = customWorldName.toUpperCase();
@@ -1099,6 +1132,20 @@ export default function App() {
           }
 
           if (typeof w !== 'number' && worldLevels.length === 0 && w !== 'my') return null;
+
+          // determine unlock/cost status for numbered worlds
+          const isWorldUnlocked = typeof w === 'number' ? unlockedWorlds.includes(w) || w <= 3 : true;
+          const cost = typeof w === 'number' ? WORLD_INFO[w]?.cost : undefined;
+          const maxUnlocked = unlockedWorlds.length ? Math.max(...unlockedWorlds) : 1;
+          const canPurchase = typeof w === 'number' && cost && !isWorldUnlocked && w === maxUnlocked + 1 && totalCoins >= cost;
+          const purchaseAction = () => {
+            if (cost && totalCoins >= cost) {
+              if (window.confirm(`Spend ${cost} coins to unlock ${WORLD_INFO[w]?.title || 'this world'}?`)) {
+                setTotalCoins(c => c - cost);
+                const worldNum = Number(w);
+                setUnlockedWorlds(prev => [...prev, worldNum]);
+                setUnlockedLevels(prev => [...prev, (worldNum - 1) * 5 + 1]);
+          };
 
           return (
             <div key={w} className="bg-slate-800 rounded-2xl p-6 border border-slate-700 flex flex-col">
@@ -1118,6 +1165,25 @@ export default function App() {
                   </button>
                 )}
               </div>
+              {typeof w === 'number' && WORLD_INFO[w] && (
+                <p className="text-sm text-slate-300 mb-2">
+                  {WORLD_INFO[w].description}
+                </p>
+              )}
+              {!isWorldUnlocked && typeof w === 'number' && cost && (
+                <>
+                  <button
+                    onClick={purchaseAction}
+                    disabled={!canPurchase}
+                    className="mb-2 bg-yellow-500 hover:bg-yellow-600 text-black rounded-full px-3 py-1 text-sm disabled:opacity-50"
+                  >
+                    {canPurchase ? `Unlock for ${cost} coins` : `Locked (${cost} coins)`}
+                  </button>
+                  {(!canPurchase && w !== maxUnlocked + 1) && (
+                    <p className="text-[10px] text-slate-500">Unlock previous worlds first</p>
+                  )}
+                </>
+              )}
               <div className="grid grid-cols-5 gap-2">
                 {Array.from({ length: Math.max(5, worldLevels.length) }).map((_, i) => {
                   const level = worldLevels[i];
@@ -1127,7 +1193,7 @@ export default function App() {
                   return (
                     <button
                       key={i}
-                      disabled={!isUnlocked || !hasLevel}
+                      disabled={!isUnlocked || !hasLevel || !isWorldUnlocked}
                       onClick={() => {
                         if (level) {
                           const idx = allLevels.findIndex(l => l.id === level.id);

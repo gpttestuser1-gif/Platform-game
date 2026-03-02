@@ -4,6 +4,7 @@ Tri World Odyssey is a platform game built with React, TypeScript, and Vite. Exp
 
 ## Features
 - Multiple levels with increasing difficulty
+- Six worlds in total, including three unlockable bonus worlds (Crystal Caverns, Sky Ruins, Lava Fortress)
 - Responsive controls and smooth animations
 - Modern UI with React and Tailwind CSS
 - Fun effects using Konva and canvas-confetti
@@ -68,6 +69,7 @@ Platform-game/
   - If you get stuck, search for the error message online or ask for help.
 
 Enjoy building and playing Tri World Odyssey!
+Unlock additional beautiful worlds using coins collected in-game for fresh challenges and greater rewards.
 
 ## Deploy to GitHub Pages
 

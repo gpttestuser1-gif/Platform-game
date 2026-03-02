@@ -45,6 +45,7 @@ export interface User {
   id: string;
   name: string;
   unlockedLevels: number[];
+  unlockedWorlds: number[]; // new: which worlds have been purchased/unlocked
   totalCoins: number;
   ownedItems: string[];
   maxLives: number;

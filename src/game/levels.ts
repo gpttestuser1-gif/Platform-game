@@ -4,6 +4,9 @@ const BG_COLORS = {
   1: '#ecfdf5', // Forest
   2: '#1e293b', // Cave
   3: '#450a0a', // Volcano
+  4: '#e0f7fa', // Crystal Caverns (light teal glow)
+  5: '#dbeafe', // Sky Ruins (pale sky blue)
+  6: '#2a0303', // Lava Fortress (dark red)
 };
 
 const createPlatform = (id: string, x: number, y: number, width: number, height: number): Entity => ({
@@ -79,7 +82,7 @@ const createCoin = (id: string, x: number, y: number): Entity => ({
 export const LEVELS: LevelData[] = [];
 
 // Max jump height is ~120px, max horizontal jump is ~200px
-for (let w = 1; w <= 3; w++) {
+for (let w = 1; w <= 6; w++) {
   for (let l = 1; l <= 5; l++) {
     const entities: Entity[] = [];
     let lastX = 50;
@@ -121,8 +124,10 @@ for (let w = 1; w <= 3; w++) {
         entities.push(createExtraLife(`life-${w}-${l}-${i}`, nextX + width/2 - 10, nextY - 30));
       }
 
-      // Add coins
-      if (Math.random() > 0.3) {
+      // Add coins with higher probability in later worlds
+      let coinChance = 0.3;
+      if (w >= 4) coinChance = 0.6 + (w - 4) * 0.1; // 0.6,0.7,0.8 for w4,5,6
+      if (Math.random() < coinChance) {
         entities.push(createCoin(`coin-${w}-${l}-${i}`, nextX + width/2 - 7, nextY - 20));
       }
 
@@ -149,6 +154,33 @@ for (let w = 1; w <= 3; w++) {
             entities.push(createHazard(`fire-${w}-${l}-${i}`, nextX + (width - fireWidth) / 2, nextY - 15, fireWidth, 15, '#f97316'));
           }
         }
+      } else if (w === 4) {
+        // Crystal Caverns: more coins and occasional moving crystal walls
+        if (Math.random() > 0.7) {
+          entities.push(createCoin(`coin-${w}-${l}-${i}-bonus`, nextX + width/2 - 7, nextY - 50));
+        }
+        if (Math.random() > 0.8) {
+          entities.push(createMovingPlatform(`mp-${w}-${l}-${i}`, nextX, nextY - 60, 120, 10, 120, 1.5));
+        }
+      } else if (w === 5) {
+        // Sky Ruins: floating platforms and faster monsters
+        if (Math.random() > 0.5) {
+          entities.push(createMonster(`m-${w}-${l}-${i}`, nextX, nextY - 35, width, 2 + l * 0.4));
+        }
+        if (Math.random() > 0.6) {
+          entities.push(createMovingPlatform(`mp-${w}-${l}-${i}`, nextX, nextY - 80, 100, 15, 100, 3));
+        }
+      } else if (w === 6) {
+        // Lava Fortress: heavy hazards and fast monsters
+        if (Math.random() > 0.4) {
+          entities.push(createHazard(`lava-${w}-${l}-${i}`, nextX + 10, nextY - 10, width - 20, 15, '#dc2626'));
+        }
+        if (Math.random() > 0.6) {
+          entities.push(createMonster(`m-${w}-${l}-${i}`, nextX, nextY - 35, width, 2.5 + l * 0.5));
+        }
+        if (Math.random() > 0.7) {
+          entities.push(createMovingPlatform(`mp-${w}-${l}-${i}`, nextX, nextY - 60, 120, 10, 120, 2));
+        }
       }
 
       lastX = nextX;
@@ -168,7 +200,12 @@ for (let w = 1; w <= 3; w++) {
       entities,
       spawnPoint: { x: 50, y: 500 },
       goalPoint: { x: goalX + 10, y: goalY },
-      background: BG_COLORS[w as 1|2|3],
+      background: BG_COLORS[w as 1|2|3|4|5|6],
+      // apply custom palette for newer worlds to make them prettier
+      customColors: w === 4 ? { platform: '#38bdf8', monster: '#a855f7', hazard: '#6366f1' }
+                    : w === 5 ? { platform: '#7dd3fc', monster: '#4ade80', hazard: '#60a5fa' }
+                    : w === 6 ? { platform: '#f87171', monster: '#eab308', hazard: '#f97316' }
+                    : undefined,
     });
   }
 }
