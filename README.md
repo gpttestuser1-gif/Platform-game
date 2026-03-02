@@ -77,7 +77,9 @@ branch, GitHub Actions will build the site and publish it for you.
 
 ### What happens automatically
 1. GitHub runs `npm ci` and `npm run build`.
-2. The output from `./dist` is uploaded as a Pages artifact.
+2. The output from `./dist` is uploaded as a Pages artifact (using
+   the current `actions/upload-pages-artifact` release to avoid deprecated
+   upload-artifact warnings).
 3. GitHub's `deploy-pages` action publishes the artifact.
 4. Your game is served at
    `https://gpttestuser1-gif.github.io/Platform-game/`.
