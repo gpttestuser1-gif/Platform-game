@@ -1145,6 +1145,10 @@ export default function App() {
                 const worldNum = Number(w);
                 setUnlockedWorlds(prev => [...prev, worldNum]);
                 setUnlockedLevels(prev => [...prev, (worldNum - 1) * 5 + 1]);
+              }
+            } else {
+              alert("You don't have enough coins yet!");
+            }
           };
 
           return (
